@@ -33,12 +33,7 @@ class _TodoListState extends State<TodoList> {
         centerTitle: true,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AddTodoScreen(),
-          ),
-        ),
+        onPressed: () => navigateToAddPage(),
         child: Icon(Icons.add),
       ),
       body: Visibility(
@@ -61,6 +56,7 @@ class _TodoListState extends State<TodoList> {
                 trailing: PopupMenuButton(
                   onSelected: (value) {
                     if (value == "edit") {
+                      navigateToEditPage(item: items[index]);
                     } else if (value == 'delete') {
                       //delete todo
                       deleteById(id: id);
@@ -85,6 +81,24 @@ class _TodoListState extends State<TodoList> {
         ),
       ),
     );
+  }
+
+  Future<void> navigateToAddPage() async {
+    final route = MaterialPageRoute(builder: (_) => AddTodoScreen());
+    await Navigator.push(context, route);
+    setState(() {
+      isLoading = true;
+    });
+    getApi();
+  }
+
+  navigateToEditPage({required Map item}) async {
+    final route = MaterialPageRoute(builder: (_) => AddTodoScreen(item: item));
+    await Navigator.push(context, route);
+    setState(() {
+      isLoading = true;
+    });
+    getApi();
   }
 
   Future<void> getApi() async {
