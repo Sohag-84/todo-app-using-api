@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:todo_using_api/Screens/add_todo.dart';
 import 'package:http/http.dart' as http;
 
@@ -48,6 +49,8 @@ class _TodoListState extends State<TodoList> {
           child: ListView.builder(
             itemCount: items.length,
             itemBuilder: (context, index) {
+              final id = items[index]['_id'] as String;
+
               return ListTile(
                 leading: CircleAvatar(child: Text("${index + 1}")),
                 title: Text(
@@ -58,7 +61,10 @@ class _TodoListState extends State<TodoList> {
                 trailing: PopupMenuButton(
                   onSelected: (value) {
                     if (value == "edit") {
-                    } else if (value == 'delete') {}
+                    } else if (value == 'delete') {
+                      //delete todo
+                      deleteById(id: id);
+                    }
                   },
                   itemBuilder: (context) {
                     return [
@@ -97,5 +103,23 @@ class _TodoListState extends State<TodoList> {
     });
     log(response.body);
     print(response.statusCode);
+  }
+
+  //delete todo
+  Future<void> deleteById({required id}) async {
+    //delete the item
+    final url = "https://api.nstack.in/v1/todos/$id";
+    final uri = Uri.parse(url);
+    final response = await http.delete(uri);
+
+    //remove from the list
+    if (response.statusCode == 200) {
+      final filtered = items.where((element) => element["_id"] != id).toList();
+      setState(() {
+        items = filtered;
+      });
+    } else {
+      Fluttertoast.showToast(msg: "Something is wrong!");
+    }
   }
 }
